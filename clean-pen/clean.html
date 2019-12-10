@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>画笔和擦除</title>
+    <style>
+        .operation {
+            margin: 10px 0;
+        }
+
+        canvas {
+            border: 1px solid #dedede;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="operation">
+        <button onclick="cleanPenSelected()">擦除</button>
+        <button onclick="drawPenSelected()">画笔</button>
+        <label>画笔选择</label>
+        <select name="penSize">
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="80">80</option>
+            <option value="120">120</option>
+        </select>
+    </div>
+    <canvas width="600" height="400"></canvas>
+
+    <script>
+        let penSize=20;
+        let oSelect=document.querySelector('select[name=penSize]');
+        oSelect.onchange=function(e){
+            penSize=e.target.value
+        }
+        class CanvasDemo {
+            constructor(sName) {
+                this.canvas = document.querySelector(sName);
+                this.cxt = this.canvas.getContext('2d')
+                this.iW = this.cxt.canvas.width;
+                this.iH = this.cxt.canvas.height;
+            }
+
+            drawInit(x,y,r){
+                this.cxt.beginPath();
+                this.cxt.fillStyle="pink";
+                this.cxt.arc(x,y,r,0,2*Math.PI,true);
+                this.cxt.fill()
+            }
+            drawStart() {
+                this.cxt.globalCompositeOperation = "source-over";
+
+            }
+        }
+
+
+        let pen = new CanvasDemo('canvas')
+        function cleanPenSelected() {
+            //点击后启动清除功能
+            /* 
+            pen.clean() */
+        }
+
+        function drawPenSelected() {
+            //点击后选择画笔功能
+            /* 
+            pen.drawing() */
+
+        }
+        let canvas = document.querySelector('canvas');
+        canvas.addEventListener('mousedown', (e) => {
+            console.log(penSize)
+            let x=e.clientX-penSize/2;
+            let y=e.clientY-penSize/2;
+            pen.drawInit(x,y,penSize/2)
+            
+
+        }, false);
+
+
+    </script>
+
+
+</body>
+
+</html>
