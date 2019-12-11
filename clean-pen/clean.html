@@ -11,7 +11,7 @@
             margin: 10px 0;
         }
 
-        canvas {
+        .paint {
             border: 1px solid #dedede;
         }
     </style>
@@ -21,6 +21,7 @@
     <div class="operation">
         <button onclick="cleanPenSelected()">擦除</button>
         <button onclick="drawPenSelected()">画笔</button>
+        <button onclick="resetPainter()">重置</button>
         <label>画笔选择</label>
         <select name="penSize">
             <option value="20">20</option>
@@ -29,59 +30,131 @@
             <option value="120">120</option>
         </select>
     </div>
-    <canvas width="600" height="400"></canvas>
-
+    <canvas width="600" height="400" class="paint"></canvas>
+    <canvas class="pen" style="display:none;"></canvas>
     <script>
-        let penSize=20;
-        let oSelect=document.querySelector('select[name=penSize]');
-        oSelect.onchange=function(e){
-            penSize=e.target.value
+        let penSize = 20;
+
+        let isClean = false;
+        let isPaint = false;
+        let oSelect = document.querySelector('select[name=penSize]');
+        oSelect.onchange = function (e) {
+            penSize = e.target.value
         }
-        class CanvasDemo {
-            constructor(sName) {
+
+
+        //设置笔的样式
+        class PenStyle {
+            constructor(sName, penSize) {
                 this.canvas = document.querySelector(sName);
                 this.cxt = this.canvas.getContext('2d')
+                this.penSize = penSize;
+                this.cxt.canvas.width = penSize;
+                this.cxt.canvas.height = penSize;
+            }
+
+            choosePaintPen() {
+                this.cxt.fillStyle = "pink";
+                this.cxt.arc(this.penSize / 2, this.penSize / 2, this.penSize / 2, 0, 2 * Math.PI, true)
+                this.cxt.fill()
+                this.changeMouseStyle()
+            }
+
+            chooseCleanPen() {
+                this.cxt.strokeStyle = "#000000";
+                this.cxt.fillStyle = "#fff"
+                this.cxt.arc(this.penSize / 2, this.penSize / 2, this.penSize / 2, 0, 2 * Math.PI, true);
+                this.cxt.fill()
+                this.cxt.stroke()
+                this.changeMouseStyle()
+            }
+            changeMouseStyle() {
+                this.canvas.toBlob((blob) => {
+                    let url = URL.createObjectURL(blob);
+                    document.body.style.cursor = `url(${url}),default`
+                })
+            }
+        }
+
+        //设置画图
+        class CanvasDemo {
+            constructor(sName, typeName, penSize) {
+                this.canvas = document.querySelector(sName);
+                this.cxt = this.canvas.getContext('2d')
+                this.typeName = typeName;
                 this.iW = this.cxt.canvas.width;
                 this.iH = this.cxt.canvas.height;
+                this.penSize = penSize
             }
-
-            drawInit(x,y,r){
-                this.cxt.beginPath();
-                this.cxt.fillStyle="pink";
-                this.cxt.arc(x,y,r,0,2*Math.PI,true);
-                this.cxt.fill()
+            init() {
+                this.canvas.onmousedown = () => {
+                    document.onmousemove = this.fnMove.bind(this);//绑定当前对象
+                    document.onmouseup = this.fnUp.bind(this);
+                    return false
+                }
             }
-            drawStart() {
-                this.cxt.globalCompositeOperation = "source-over";
-
+            fnMove(e) {
+                if (this.typeName == 'paint') {
+                    this.cxt.globalCompositeOperation = 'source-over';
+                    this.cxt.beginPath();
+                    this.cxt.fillStyle = "pink"
+                    this.cxt.arc(e.clientX+this.penSize/2 , e.clientY, this.penSize / 2, 0, 2 *
+                        Math.PI, true)
+                    this.cxt.fill()
+                }
+                if (this.typeName == 'clean') {
+                    this.cxt.globalCompositeOperation = 'destination-out';
+                    this.cxt.beginPath();
+                    this.cxt.strokeStyle = "#000000"
+                    this.cxt.fillStyle = "#fff"
+                    this.cxt.arc(e.clientX+this.penSize/2 , e.clientY , this.penSize / 2, 0, 2 *
+                        Math.PI, true)
+                    this.cxt.fill()
+                    this.cxt.stroke()
+                }
+            }
+            fnUp() {
+                document.onmousemove = null;
+                document.onmouseup = null;
             }
         }
 
 
-        let pen = new CanvasDemo('canvas')
+
+        //点击后启动清除功能
         function cleanPenSelected() {
-            //点击后启动清除功能
-            /* 
-            pen.clean() */
+            //选择清除的画笔，改变鼠标形状
+            let pen = new PenStyle('.pen', penSize)
+            pen.chooseCleanPen()
+            isClean = true;
+            isPaint = false;
+            if (isClean) {
+                let cleaning = new CanvasDemo('.paint', 'clean', penSize);
+                cleaning.init()
+            }
         }
 
+        //点击后选择画笔功能
         function drawPenSelected() {
-            //点击后选择画笔功能
-            /* 
-            pen.drawing() */
-
+            //选择了画笔 改变鼠标的形状
+            let pen = new PenStyle('.pen', penSize)
+            pen.choosePaintPen()
+            isClean = false;
+            isPaint = true
+            if (isPaint) {
+                let painting = new CanvasDemo('.paint', 'paint', penSize)
+                painting.init()
+            }
         }
-        let canvas = document.querySelector('canvas');
-        canvas.addEventListener('mousedown', (e) => {
-            console.log(penSize)
-            let x=e.clientX-penSize/2;
-            let y=e.clientY-penSize/2;
-            pen.drawInit(x,y,penSize/2)
-            
-
-        }, false);
-
-
+        //重置
+        function resetPainter() {
+            /* document.body.style.cursor = ""
+            oSelect.value=20
+            isPaint = false;  
+            isClean = false;
+            penSize=20 */
+            window.location.reload()
+        }
     </script>
 
 
