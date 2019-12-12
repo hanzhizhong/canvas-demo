@@ -19,8 +19,8 @@
 
 <body>
     <div class="operation">
-        <button onclick="cleanPenSelected()">擦除</button>
-        <button onclick="drawPenSelected()">画笔</button>
+        <button id="cleaner">擦除</button>
+        <button id="painter">画笔</button>
         <button onclick="resetPainter()">重置</button>
         <label>画笔选择</label>
         <select name="penSize">
@@ -35,8 +35,6 @@
     <script>
         let penSize = 20;
 
-        let isClean = false;
-        let isPaint = false;
         let oSelect = document.querySelector('select[name=penSize]');
         oSelect.onchange = function (e) {
             penSize = e.target.value
@@ -77,61 +75,79 @@
         }
 
         //设置画图
-        class CanvasDemo {
-            constructor(sName, typeName, penSize) {
-                this.canvas = document.querySelector(sName);
-                this.cxt = this.canvas.getContext('2d')
-                this.typeName = typeName;
-                this.iW = this.cxt.canvas.width;
-                this.iH = this.cxt.canvas.height;
-                this.penSize = penSize
+        class CanvasDemo{
+            constructor(sName,penSize,color){
+                this.canvas=document.querySelector(sName);
+                this.cxt=this.canvas.getContext("2d")
+                this.r=penSize/2;
+                this.color=color||'pink'
+                this.cxt.globalCompositeOperation="source-over"
             }
-            init() {
-                this.canvas.onmousedown = () => {
-                    document.onmousemove = this.fnMove.bind(this);//绑定当前对象
-                    document.onmouseup = this.fnUp.bind(this);
-                    return false
+            line(){
+                this.canvas.onmousedown=(e)=>{
+                    this.disX=e.clientX-this.canvas.offsetLeft+this.r;
+                    this.disY=e.clientY-this.canvas.offsetTop+this.r;
+                    
+                    this.drawArc(this.disX,this.disY)
+
+                    document.onmousemove=this.fnMove.bind(this);
+                    document.onmouseup=this.fnUp.bind(this);
+
+                    return false;
                 }
             }
-            fnMove(e) {
-                if (this.typeName == 'paint') {
-                    this.cxt.globalCompositeOperation = 'source-over';
-                    this.cxt.beginPath();
-                    this.cxt.fillStyle = "pink"
-                    this.cxt.arc(e.clientX+this.penSize/2 , e.clientY, this.penSize / 2, 0, 2 *
-                        Math.PI, true)
-                    this.cxt.fill()
-                }
-                if (this.typeName == 'clean') {
-                    this.cxt.globalCompositeOperation = 'destination-out';
-                    this.cxt.beginPath();
-                    this.cxt.strokeStyle = "#000000"
-                    this.cxt.fillStyle = "#fff"
-                    this.cxt.arc(e.clientX+this.penSize/2 , e.clientY , this.penSize / 2, 0, 2 *
-                        Math.PI, true)
-                    this.cxt.fill()
-                    this.cxt.stroke()
-                }
+
+            fnMove(e){
+                let x=e.clientX-this.canvas.offsetLeft+this.r;
+                let y=e.clientY-this.canvas.offsetTop+this.r;
+
+                this.cxt.lineCap="round"
+                this.cxt.lineWidth=this.r*2;
+                this.cxt.lineJoin="round";
+
+                this.drawLine(this.disX,this.disY,x,y)
+                this.disX=x;
+                this.disY=y;
             }
-            fnUp() {
-                document.onmousemove = null;
-                document.onmouseup = null;
+            fnUp(){
+                this.cxt.closePath();
+                document.onmousemove=null;
+                document.onmouseup=null;
+            }
+
+            //画圆
+            drawArc(dx,dy){
+                this.cxt.beginPath()
+                this.cxt.fillStyle=this.color;
+                this.cxt.arc(dx,dy,this.r,0,2*Math.PI,true)
+                this.cxt.fill()
+            }
+            //鼠标移动时划线
+            drawLine(dx,dy,x,y){
+                this.cxt.beginPath();
+                this.cxt.strokeStyle=this.color;
+                this.cxt.moveTo(dx,dy)
+                this.cxt.lineTo(x,y)
+                this.cxt.stroke()
+            }
+
+            //清除
+            clean(){
+                this.cxt.globalCompositeOperation="destination-out";
+                this.line()
             }
         }
 
-
-
+        let paint=null;
+        
         //点击后启动清除功能
         function cleanPenSelected() {
+            console.log('aa')
             //选择清除的画笔，改变鼠标形状
             let pen = new PenStyle('.pen', penSize)
             pen.chooseCleanPen()
-            isClean = true;
-            isPaint = false;
-            if (isClean) {
-                let cleaning = new CanvasDemo('.paint', 'clean', penSize);
-                cleaning.init()
-            }
+            paint=new CanvasDemo('.paint',penSize)
+            paint.clean()
         }
 
         //点击后选择画笔功能
@@ -139,21 +155,15 @@
             //选择了画笔 改变鼠标的形状
             let pen = new PenStyle('.pen', penSize)
             pen.choosePaintPen()
-            isClean = false;
-            isPaint = true
-            if (isPaint) {
-                let painting = new CanvasDemo('.paint', 'paint', penSize)
-                painting.init()
-            }
+            paint=new CanvasDemo('.paint',penSize)
+            paint.line()
         }
+
+        cleaner.addEventListener('click',cleanPenSelected,false);
+        painter.addEventListener('click',drawPenSelected,false)
         //重置
         function resetPainter() {
-            /* document.body.style.cursor = ""
-            oSelect.value=20
-            isPaint = false;  
-            isClean = false;
-            penSize=20 */
-            window.location.reload()
+            window.location.reload();
         }
     </script>
 
