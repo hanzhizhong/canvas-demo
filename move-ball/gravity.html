@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>弹跳小球</title>
+    <style>
+        *{padding:0;margin:0;}
+        canvas{
+            display:block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+</body>
+<script>
+    window.onload=window.onresize=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d")
+
+        let iW=canvas.width=window.innerWidth;
+        let iH=canvas.height=window.innerHeight;
+        let gravity=0.98;
+        let frication=0.8;
+        function Ball(context,x,y,r,dir_x,dir_y,color){
+            this.cxt=context;
+            this.posX=x;
+            this.posY=y;
+            this.dirX=dir_x;
+            this.dirY=dir_y;
+            this.r=r;
+            this.color=color;
+        }
+
+        Ball.prototype.init=function(){
+            this.cxt.beginPath()
+            this.cxt.arc(this.posX,this.posY,this.r,0,2*Math.PI,true)
+            this.cxt.fillStyle=this.color;
+            this.cxt.fill()
+        }
+
+        Ball.prototype.update=function(){
+            this.posY+=this.dirY;
+            this.posX+=this.dirX;
+            if(this.posY>iH-this.r-this.dirY){
+                this.dirY*=-frication;
+                this.dirX*=-frication;
+            }else{
+                this.dirY+=gravity;
+            }
+
+            if(this.posX>iW-this.r ||this.posX<this.r){
+                this.dirX=-this.dirX;
+            }
+            this.init()
+        }
+        //实例化一个
+        //let ball=new Ball(cxt,iW/2,iH/2,40,1,1,"red")
+        //实例化多个
+        let ballArr;
+        function start(){
+            ballArr=[];
+            for(let i=0;i<200;i++){
+                let r=Math.random()*5+2;
+                let x=Math.random()*(iW-r);
+                let y=Math.random()*(iH-r);
+                let color=`rgb(${Math.random()*256},${Math.random()*256},${Math.random()*256})`
+                let dirX=(Math.random()-0.5)*20;
+                let dirY=(Math.random()-0.5)*20;
+                ballArr.push(new Ball(cxt,x,y,r,dirX,dirY,color));
+
+            }
+        }
+        
+        function animate(){
+            requestAnimationFrame(animate)
+            cxt.clearRect(0,0,iW,iH)
+            for(let temp of ballArr){
+                temp.update()
+            }
+        }
+        start()
+        animate()
+
+        canvas.addEventListener("click",function(){
+            start()
+        })
+    }
+</script>
+</html>

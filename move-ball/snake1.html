@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas{
+            border:1px solid #dedede;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="500" height="400"></canvas>
+
+    <script>
+        window.onload=function(){
+            let canvas=document.querySelector("canvas")
+            let cxt=canvas.getContext("2d")
+            //初始设置值
+            let options={
+                size:10,
+                direction:'right',
+                sHColor:'orange',//蛇头颜色
+                sBColor:'#dddddd',//蛇身体颜色
+                speed:1,
+                sColor:'green',//食物的颜色
+                position:[
+                    {x:3,y:3},
+                    {x:2,y:3},
+                    {x:1,y:3}
+                ]
+            }
+
+            //初始化地图 每个格子大小为5*5
+            class Map{
+                constructor(context,size){
+                    this.cxt=context;
+                    this.iW=this.cxt.canvas.width;
+                    this.iH=this.cxt.canvas.height;
+                    this.size=size;
+                    this.init()
+                }
+                init(){
+                    let iNumX=Math.floor(this.iW/this.size);
+                    let iNumY=Math.floor(this.iH/this.size);
+                    this.cxt.beginPath()
+                    
+                    this.cxt.strokeStyle="#f5f5f5"
+                    for(let i=0;i<iNumX;i++){
+                        this.cxt.moveTo(i*this.size-0.5,0)
+                        this.cxt.lineTo(i*this.size-0.5,this.iH)
+                    }
+                    this.cxt.stroke()
+
+                    this.cxt.beginPath()
+                    
+                    this.cxt.strokeStyle="#f5f5f5";
+                    for(let i=0;i<iNumY;i++){
+                        this.cxt.moveTo(0,i*this.size-0.5)
+                        this.cxt.lineTo(this.iW,i*this.size-0.5)
+                    }
+                    this.cxt.stroke()
+
+                }
+            }
+
+            class Food{
+                constructor(context,size,sColor){
+                    this.cxt=context;
+                    this.size=size;
+                    this.iW=this.cxt.canvas.width;
+                    this.iH=this.cxt.canvas.height;
+                    this.color=sColor;
+                    this.iNumX=Math.floor(this.iW/this.size)
+                    this.iNumY=Math.floor(this.iH/this.size)
+                    this.init()
+                }
+
+                init(){
+                    this.cxt.beginPath()
+                    let x=Math.floor(Math.random()*this.iNumX)*this.size;
+                    let y=Math.floor(Math.random()*this.iNumY)*this.size;
+                    console.log(x,y)
+                    this.cxt.fillStyle=this.color;
+                    this.cxt.fillRect(x,y,this.size,this.size)
+                    
+                }
+            }
+
+            class Snake{
+                constructor(context,size,position,direction,sHColor,sBColor,speed){
+                    this.cxt=context;
+                    this.size=size;
+                    this.position=position
+                    this.direction=direction;
+                    this.sHColor=sHColor;
+                    this.sBColor=sBColor;
+                    this.iW=this.cxt.canvas.width;
+                    this.iH=this.cxt.canvas.height;
+                    this.speed=speed;
+                    this.init()
+                }
+                init(){
+                    //this.cxt.clearRect(0,0,this.iW,this.iH)
+                    this.position.forEach((item,index)=>{
+                        this.cxt.beginPath()
+                        if(index==0){
+                            this.cxt.fillStyle=this.sHColor
+                        }else{
+                            this.cxt.fillStyle=this.sBColor
+                        }
+                        this.cxt.fillRect(item.x*this.size,item.y*this.size,this.size,this.size)
+                    })
+                    
+                }
+                update(){
+                    this.position.splice(1,0,{x:this.position[0].x,y:this.position[0].y})
+                    this.position.pop()
+                    switch(this.direction){
+                        case 'left':this.position[0].x-=this.speed;break;
+                        case 'top':this.position[0].y-=this.speed;break;
+                        case 'right':this.position[0].x+=this.speed;break;
+                        case 'bottom':this.position[0].y+=this.speed;break;
+                    }
+                    this.init()
+                }
+
+                
+            }
+
+            let map=new Map(cxt,options.size)
+            let food=new Food(cxt,options.size,options.sColor)
+            let snake=new Snake(cxt,options.size,options.position,options.direction,options.sHColor,options.sBColor,options.speed)
+
+            
+            //snake.update()
+            //snake.update()
+           
+
+        }
+    </script>
+</body>
+</html>

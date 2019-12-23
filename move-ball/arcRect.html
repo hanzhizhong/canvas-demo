@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>圆角矩形</title>
+    <style>
+        canvas{
+            border:1px solid #dedede;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="600" height="400"></canvas>
+</body>
+<script>
+    window.onload=window.onresize=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d")
+        let iW=canvas.width;
+        let iH=canvas.height;
+
+        let r=20;
+
+        let rectW=200;
+        let rectH=100;
+
+        cxt.beginPath()
+        cxt.moveTo(100,100)
+        cxt.lineTo(200,100)
+        cxt.arcTo(300,100,300,200,100)
+        cxt.lineTo(300,300)
+        cxt.lineTo(200,300)
+        cxt.arcTo(100,300,100,200,100)
+        cxt.closePath()
+        cxt.stroke()
+
+        cxt.beginPath()
+        cxt.fillStyle='blue';
+
+        cxt.arc(iW/2,iH/2,100,0,2*Math.PI,true)
+        cxt.arc(iW/2,iH/2,50,0,2*Math.PI,false)
+        cxt.shadowColor="#000";
+        cxt.shadowBlur=20;
+        cxt.shadowOffsetX=0;
+        cxt.shadowOffsetY=0;
+        cxt.fill()
+        
+
+    }
+</script>
+</html>
