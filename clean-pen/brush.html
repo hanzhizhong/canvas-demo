@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas{
+            border:1px solid #dedede;
+        }
+    </style>
+</head>
+<body>
+    <button class="clearing">清除</button>
+    <canvas width="600" height="400"></canvas>
+</body>
+<script>
+    window.onload=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d");
+        let iW=canvas.width;
+        let iH=canvas.height;
+
+        class BrushPen{
+            constructor(r,color){
+                this.penR=r;
+                this.color=color;
+            }
+            init(){
+                //初始化田字格
+                cxt.strokeStyle='pink';
+                cxt.lineWidth=4;
+                cxt.beginPath()
+                cxt.strokeRect(iW/2-150,iH/2-150,300,300)
+                
+                cxt.beginPath()
+                cxt.moveTo(iW/2-150,iH/2-150)
+                cxt.lineTo(iW/2+150,iH/2+150)
+                cxt.stroke()
+                cxt.closePath()
+                cxt.beginPath()
+                cxt.moveTo(iW/2+150,iH/2-150)
+                cxt.lineTo(iW/2-150,iH/2+150)
+                cxt.stroke()
+                cxt.closePath()
+
+                cxt.beginPath()
+                cxt.moveTo(iW/2,iH/2-150)
+                cxt.lineTo(iW/2,iH/2+150)
+                cxt.stroke()
+                cxt.closePath()
+
+                cxt.beginPath()
+                cxt.moveTo(iW/2-150,iH/2)
+                cxt.lineTo(iW/2+150,iH/2)
+                cxt.stroke()
+                cxt.closePath()
+            }
+            draw(dx,dy,x,y){
+               
+                cxt.beginPath();
+                cxt.lineCap="round"
+                cxt.lineWidth=this.penR*2;
+               cxt.lineJoin="round";
+                cxt.strokeStyle=this.color;
+                cxt.moveTo(dx,dy)
+                cxt.lineTo(x,y)
+                cxt.stroke()
+                cxt.closePath()
+            }
+            clear(){
+                cxt.clearRect(0,0,iW,iH)
+                this.init()
+            }
+        }
+
+        let pen=new BrushPen(10,'gold')
+        pen.init()
+        console.dir(canvas)
+        canvas.addEventListener('mousedown',function(e){
+            let disX=e.clientX-canvas.offsetLeft;
+            let disY=e.clientY-canvas.offsetTop;
+            if(disX<150||disX>450 || disY<50||disY>350){
+                return 
+            }else{
+                document.onmousemove=function(e){
+                    let x=e.clientX-canvas.offsetLeft;
+                    let y=e.clientY-canvas.offsetTop;
+                    pen.draw(disX,disY,x,y)
+                    disX=x;
+                    disY=y;
+                }
+
+                document.onmouseup=function(){
+                    document.onmouseup=null;
+                    document.onmousemove=null;
+                }
+                
+            }
+            return false
+
+        },false)
+
+        let oClear=document.querySelector('.clearing')
+        oClear.addEventListener('click',function(){
+            pen.clear()
+        },false)
+
+    }
+</script>
+</html>

@@ -6,47 +6,59 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>圆角矩形</title>
     <style>
+        *{padding:0;margin:0;}
         canvas{
-            border:1px solid #dedede;
+            display:block;
         }
     </style>
 </head>
 <body>
-    <canvas width="600" height="400"></canvas>
+    <canvas ></canvas >
 </body>
 <script>
     window.onload=window.onresize=function(){
         let canvas=document.querySelector("canvas")
-        let cxt=canvas.getContext("2d")
-        let iW=canvas.width;
-        let iH=canvas.height;
+        let cxt=canvas.getContext("2d");
+        let iW=canvas.width=window.innerWidth;
+        let iH=canvas.height=window.innerHeight;
 
-        let r=20;
+        function drawRect(x,y,w,h){
+            cxt.save()
+            cxt.translate(100,100)
+            cxt.beginPath()
+            cxt.strokeStyle="red";
+            cxt.rect(x,y,w,h)
+            cxt.stroke()
+            cxt.closePath();
+            cxt.restore()
+        }
+        drawRect(0,0,200,100)
 
-        let rectW=200;
-        let rectH=100;
-
-        cxt.beginPath()
-        cxt.moveTo(100,100)
-        cxt.lineTo(200,100)
-        cxt.arcTo(300,100,300,200,100)
-        cxt.lineTo(300,300)
-        cxt.lineTo(200,300)
-        cxt.arcTo(100,300,100,200,100)
-        cxt.closePath()
-        cxt.stroke()
-
-        cxt.beginPath()
-        cxt.fillStyle='blue';
-
-        cxt.arc(iW/2,iH/2,100,0,2*Math.PI,true)
-        cxt.arc(iW/2,iH/2,50,0,2*Math.PI,false)
-        cxt.shadowColor="#000";
-        cxt.shadowBlur=20;
-        cxt.shadowOffsetX=0;
-        cxt.shadowOffsetY=0;
-        cxt.fill()
-        
+        function drawArcRect(x,y,w,h,r,bool=false){
+            cxt.save();
+            cxt.beginPath();
+            cxt.translate(x,y)
+            
+            cxt.moveTo(0,r)
+            cxt.arcTo(0,0,r,0,r)
+            cxt.lineTo(w-r,0)
+            cxt.arcTo(w,0,w,r,r);
+            cxt.lineTo(w,h-r)
+            cxt.arcTo(w,h,w-r,h,r)
+            cxt.lineTo(r,h)
+            cxt.arcTo(0,h,0,h-r,r)
+            cxt.lineTo(0,r)
+            if(bool){
+                cxt.fillStyle='blue'
+                cxt.fill()
+            }else{
+                cxt.strokeStyle="blue"
+                cxt.stroke()
+            }
+            cxt.closePath()
+            cxt.restore()
+        }
+        drawArcRect(100,250,200,100,10,true)
 
     }
 </script>

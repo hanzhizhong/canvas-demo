@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{padding:0;margin:0;}
+        canvas{
+            display:block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+</body>
+<script>
+    window.onload=window.onresize=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d")
+        let iW=canvas.width=window.innerWidth;
+        let iH=canvas.height=window.innerHeight;
+
+        let mouse={
+            x:iW/2,
+            y:iH/2
+        }
+
+        window.addEventListener('mousemove',function(e){
+            mouse.x=e.clientX;
+            mouse.y=e.clientY;
+        },false)
+
+        class Ball{
+            constructor(x,y,r,color){
+                this.posX=x;
+                this.posY=y;
+                this.r=r;
+                this.color=color;
+                this.speed=0.03;
+                this.theta=Math.random()*2*Math.PI;//默认的开始旋转角度
+                this.distance=Math.random()*50+30;
+
+            }
+            init(){
+                cxt.beginPath()
+                cxt.arc(this.posX,this.posY,this.r,0,2*Math.PI,true)
+                cxt.fillStyle=this.color;
+                cxt.fill();
+            }
+            update(){
+                this.theta+=this.speed;
+                this.posX=mouse.x+Math.cos(this.theta)*this.distance;
+                this.posY=mouse.y+Math.sin(this.theta)*this.distance;
+                this.init()
+            }
+
+        }
+
+
+        //let b=new Ball(iW/2,iH/2,10,'red',0.05)
+        let ballArr;
+        function start(){
+            ballArr=[]
+            for(let i=0;i<20;i++){
+                let x=iW/2;
+                let y=iH/2;
+                let r=2;
+                let color=`rgb(${Math.floor(Math.random()*256)},${Math.floor(Math.random()*256)},${Math.floor(Math.random()*256)})`;
+                ballArr.push(new Ball(x,y,r,color))
+            }
+        }
+        function animate(){
+            
+            requestAnimationFrame(animate);
+            cxt.fillStyle='rgba(255,255,255,0.2)';
+            cxt.fillRect(0,0,iW,iH);
+            ballArr.forEach((item,index)=>{
+                item.update()
+            })
+        }
+        
+        start()
+        animate()
+        
+    }
+</script>
+</html>
