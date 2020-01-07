@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>跟随鼠标移动的彩球</title>
+    <style>
+        canvas{
+            border:1px solid #dedede;
+        }
+    </style>
+
+</head>
+<body>
+    <canvas width="600" height="400"></canvas>
+</body>
+<script>
+    window.onload=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d")
+        let iW=canvas.width;
+        let iH=canvas.height;
+
+        class Ball{
+            constructor(x,y,r,color){
+                this.x=x
+                this.y=y
+                this.r=r;
+                this.dx=(Math.random()-0.5)*8;
+                this.dy=(Math.random()-0.5)*8;
+                this.color=color;
+                this.init()
+            }
+            init(){
+                cxt.beginPath()
+                cxt.fillStyle=this.color;
+                cxt.arc(this.x,this.y,this.r,0,2*Math.PI,true);
+                cxt.fill()
+            }
+            update(){
+                this.x+=this.dx;
+                this.y+=this.dy;
+                this.r-=1;
+                
+                if(this.r<0){
+                    aBall.forEach((item,index)=>{
+                        if(this==item){
+                            aBall.splice(index,1)
+                        }
+                    })
+                    return false //删除后的球不需要再画了
+                }
+                this.init()
+            }
+        }
+        canvas.addEventListener("mousemove",function(e){
+            let x=e.clientX;
+            let y=e.clientY;
+            let r=20
+            let color=`rgb(${Math.random()*256},${Math.random()*256},${Math.random()*256})`
+            let ball=new Ball(x,y,r,color)
+            aBall.push(ball)
+        },false)
+        var timer=null;
+        var aBall=[]
+        timer=setInterval(function(){
+            cxt.clearRect(0,0,iW,iH)
+            aBall.forEach((item,index)=>{
+                item.update()
+            })
+        },30)
+    }
+</script>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>彩条</title>
+    <style>
+        *{padding:0;margin:0;}
+        canvas{
+            display:block;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+</body>
+<script>
+    window.onload=window.onresize=function(){
+        let canvas=document.querySelector("canvas")
+        let cxt=canvas.getContext("2d");
+        let iW=canvas.width=window.innerWidth;
+        let iH=canvas.height=window.innerHeight;
+        /* 经验值 用来获取在x轴和y轴中的取值 */
+        /* let randomX=Math.random()*2-0.25; 
+        let randomY=Math.random()*2-1.1; */
+
+        let initial=90;
+
+        class Ribbon{
+            constructor(){
+                cxt.clearRect(0,0,iW,iH);
+                this.option=[{x:0,y:0.7*iH-initial},{x:0,y:0.7*iH+initial}]
+                cxt.globalAlpha=0.5
+                while(this.option[1].x<iW){
+                    this.drawRainBow()
+                }
+            }
+
+            drawRainBow(){
+                cxt.beginPath()
+                cxt.moveTo(this.option[0].x,this.option[0].y);
+                cxt.lineTo(this.option[1].x,this.option[1].y)
+                let {new_x,new_y}=this.getThirdPoint(this.option[1].x,this.option[1].y)
+                cxt.lineTo(new_x,new_y)
+                cxt.strokeStyle="rgba(0,0,0,0)"
+                cxt.closePath()
+                cxt.fillStyle=`rgb(${Math.random()*256},${Math.random()*256},${Math.random()*256})`;
+                cxt.fill()
+                
+                this.option[0]=this.option[1]
+                this.option[1]={x:new_x,y:new_y}
+            }
+            getThirdPoint(x,y){
+                let new_x=x+(Math.random()*2-0.25)*initial;
+                let new_y=getY(y)
+                return {new_x,new_y}
+            }
+            
+        }
+
+        function getY(y){
+                let ret=y+(Math.random()*2-1.1)*initial
+                if(ret>iH||ret<0){
+                    return getY(y)
+                }else{
+                    return ret
+                }
+                
+            }
+
+        let ribbon=new Ribbon()
+
+
+    }
+</script>
+</html>
